@@ -30,12 +30,20 @@ class MegaSenaController extends Controller
     public function ultimoConcurso()
     {
         $retorno = $this->loteriaService->obterResultadoMegaSena();
+        if(isset($retorno['error'])){
+            return response()->json($retorno);
+        }
+
         return response()->json($this->megaSenaTransformer->transform($retorno));
     }
 
     public function buscarConcurso($num_concurdo)
     {
         $retorno = $this->loteriaService->obterResultadoMegaSena($num_concurdo);
+        if(isset($retorno['error'])){
+            return response()->json($retorno);
+        }
+
         return response()->json($this->megaSenaTransformer->transform($retorno));
     }
 }
