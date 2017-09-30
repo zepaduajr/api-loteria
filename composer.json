@@ -8,7 +8,8 @@
         "php": ">=7.0",
         "laravel/lumen-framework": "5.5.*",
         "vlucas/phpdotenv": "~2.2",
-        "graham-campbell/flysystem": "^4.0"
+        "graham-campbell/flysystem": "^4.0",
+        "sqlite3" : "*"
     },
     "require-dev": {
         "fzaninotto/faker": "~1.4",
