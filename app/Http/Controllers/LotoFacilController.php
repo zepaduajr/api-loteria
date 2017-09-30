@@ -31,12 +31,20 @@ class LotoFacilController extends Controller
     public function ultimoConcurso()
     {
         $retorno = $this->loteriaService->obterResultadoLotoFacil();
+        if(isset($retorno['error'])){
+            return response()->json($retorno);
+        }
+
         return response()->json($this->lotoFacilTransformer->transform($retorno));
     }
 
     public function buscarConcurso($num_concurdo)
     {
         $retorno = $this->loteriaService->obterResultadoLotoFacil($num_concurdo);
+        if(isset($retorno['error'])){
+            return response()->json($retorno);
+        }
+
         return response()->json($this->lotoFacilTransformer->transform($retorno));
     }
 }
