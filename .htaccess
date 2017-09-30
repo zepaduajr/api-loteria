@@ -1,0 +1,13 @@
+# Use PHP71 as default
+AddHandler application/x-httpd-php71 .php
+# BEGIN custom php.ini PHP71
+<IfModule mod_suphp.c>
+    suPHP_ConfigPath /home/metri401/public_html/api-loteria
+</IfModule>
+# END custom php.ini
+
+<IfModule mod_rewrite.c>
+    RewriteEngine On
+    RewriteCond %{REQUEST_URI} !^public
+    RewriteRule ^(.*)$ public/$1 [L]
+</IfModule>
