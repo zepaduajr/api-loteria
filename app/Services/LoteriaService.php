@@ -26,9 +26,35 @@ class LoteriaService
     {
         $conteudo_arquivo = getFileUrl(env('URL_ZIP_MEGASENA'));
         $ultimoConcurso = $this->getNumeroUltimoConcurso(env('URL_CAIXA_MEGASENA'));
-        $concurso = $this->detalharMegaSenaPorId((int)$ultimoConcurso);
+        $concurso = "";
+        if(!empty($ultimoConcurso) && is_numeric($ultimoConcurso)){
+            $concurso = $this->detalharMegaSenaPorId((int)$ultimoConcurso);
+            $concurso = (!empty($concurso)) ? (array)$concurso[0] : '';
+        }
+
         if(empty($concurso)){
-            return $this->extrairResultado($conteudo_arquivo, env('NME_ARQUIVO_MEGASENA'), $num_concurso);
+            $resultado = $this->extrairResultado($conteudo_arquivo, env('NME_ARQUIVO_MEGASENA'), $num_concurso);
+            if(isset($resultado['error'])){
+                return $resultado;
+            }
+            //Verifica se o concuros retornado está no banco
+            $concurso_bd = $this->detalharMegaSenaPorId($resultado[0]);
+            if(empty($concurso_bd)){
+                if(is_numeric($resultado[0])){
+                    $dataMegaSena = [(int)$resultado[0],$resultado[1],(int)$resultado[2],(int)$resultado[3],(int)$resultado[4],(int)$resultado[5],(int)$resultado[6],(int)$resultado[7]];
+                    $this->inserirMegaSena($dataMegaSena);
+                }
+            }
+            $concurso = [
+                'num_concurso' => $resultado[0],
+                'dat_sorteio' => $resultado[1],
+                'num_1' => $resultado[2],
+                'num_2' => $resultado[3],
+                'num_3' => $resultado[4],
+                'num_4' => $resultado[5],
+                'num_5' => $resultado[6],
+                'num_6' => $resultado[7],
+            ];
         }
 
         return $concurso;
@@ -76,35 +102,24 @@ class LoteriaService
             $arquivo = $this->flysystem->read($nme_arquivo);
             $dom = new \DOMDocument();
             @$dom->loadHtml($arquivo);
-            $arrayTr = array();
             $totalLinhas = $dom->getElementsByTagName('tr')->length;
 
-            for ($i=0; $i < $totalLinhas; $i++) {
+            for ($i=$totalLinhas-1; $i >= 0; $i--) {
                 $conteudoTd = $dom->getElementsByTagName('tr')->item($i)->textContent;
                 $arrayTd = explode("\r\n",$conteudoTd);
                 $arrayTd = array_map('removeCaractereArray', $arrayTd);
 
-                $concurso = $this->detalharMegaSenaPorId((int)$arrayTd[0]);
-                if(empty($concurso)){
-                    if(is_numeric($arrayTd[0])){
-                        $dataMegaSena = [(int)$arrayTd[0],$arrayTd[1],(int)$arrayTd[2],(int)$arrayTd[3],(int)$arrayTd[4],(int)$arrayTd[5],(int)$arrayTd[6],(int)$arrayTd[7]];
-                        $this->inserirMegaSena($dataMegaSena);
-                    }
-                }
-
                 if($num_concurso != ""){
                     if($arrayTd[0] == $num_concurso){
-                        array_push($arrayTr, $arrayTd);
+                        return $arrayTd;
                     }
                 }else{
-                    array_push($arrayTr, $arrayTd);
+                    return $arrayTd;
                 }
             }
-            $qtdLinhas = count($arrayTr);
 
             $zip->close();
-
-            return $arrayTr[$qtdLinhas-1];
+            return ['error'=>'Concurso não encontrado.'];
         }else{
             $zip->close();
             return ['error'=>'O Arquivo não pode ser descompactado.'];

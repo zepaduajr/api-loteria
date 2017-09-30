@@ -12,14 +12,14 @@ class MegaSenaTransformer
     public function transform(array $data)
     {
         return [
-            'num_concurso' => $data[0],
-            'dat_sorteio' => $data[1],
-            'num_1' => $data[2],
-            'num_2' => $data[3],
-            'num_3' => $data[4],
-            'num_4' => $data[5],
-            'num_5' => $data[6],
-            'num_6' => $data[7],
+            'num_concurso' => $data['num_concurso'],
+            'dat_sorteio' => $data['dat_sorteio'],
+            'num_1' => $data['num_1'],
+            'num_2' => $data['num_2'],
+            'num_3' => $data['num_3'],
+            'num_4' => $data['num_4'],
+            'num_5' => $data['num_5'],
+            'num_6' => $data['num_6'],
         ];
     }
     
