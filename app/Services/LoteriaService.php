@@ -144,9 +144,9 @@ class LoteriaService
     protected function getNumeroUltimoConcurso($url = '')
     {
         $conteudo_arquivo = getFileUrl($url);
-        $this->flysystem->put('teste.html', $conteudo_arquivo);
+        $this->flysystem->put(env('NME_ARQUIVO_EXTRACAO'), $conteudo_arquivo);
 
-        $arquivo = $this->flysystem->read('teste.html');
+        $arquivo = $this->flysystem->read(env('NME_ARQUIVO_EXTRACAO'));
         $dom = new \DOMDocument();
         @$dom->loadHtml($arquivo);
         $xp = new \DOMXPath($dom);
