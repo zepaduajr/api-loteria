@@ -6,6 +6,7 @@ namespace App\Services;
 use App\Repositories\LotoFacilRepository;
 use App\Repositories\MegaSenaRepository;
 use GrahamCampbell\Flysystem\FlysystemManager;
+use Illuminate\Support\Facades\Log;
 
 class LoteriaService
 {
@@ -165,38 +166,48 @@ class LoteriaService
 
     protected function extrairResultado($conteudo_arquivo, $nme_arquivo, $num_concurso = "")
     {
-        $this->flysystem->put('resultado.zip', $conteudo_arquivo);
+        Log::info('numero -> '.$num_concurso);
+        $num_concurso = (is_numeric($num_concurso)) ? $num_concurso : '';
+        try {
 
-        $arquivo = storage_path('files/resultado.zip');
-        $destino = storage_path('files');
+            $this->flysystem->put('resultado.zip', $conteudo_arquivo);
 
-        $zip = new \ZipArchive();
-        $zip->open($arquivo);
-        if($zip->extractTo($destino)){
-            $arquivo = $this->flysystem->read($nme_arquivo);
-            $dom = new \DOMDocument();
-            @$dom->loadHtml($arquivo);
-            $totalLinhas = $dom->getElementsByTagName('tr')->length;
-
-            for ($i=$totalLinhas-1; $i >= 0; $i--) {
-                $conteudoTd = $dom->getElementsByTagName('tr')->item($i)->textContent;
-                $arrayTd = explode("\r\n",$conteudoTd);
-                $arrayTd = array_map('removeCaractereArray', $arrayTd);
-
-                if($num_concurso != ""){
-                    if($arrayTd[0] == $num_concurso){
-                        return $arrayTd;
+            $arquivo = storage_path('files/resultado.zip');
+            $destino = storage_path('files');
+    
+            $zip = new \ZipArchive();
+            $zip->open($arquivo);
+            if($zip->extractTo($destino)){
+                $arquivo = $this->flysystem->read($nme_arquivo);
+                $dom = new \DOMDocument();
+                @$dom->loadHtml($arquivo);
+                $totalLinhas = $dom->getElementsByTagName('tr')->length;
+    
+                for ($i=$totalLinhas-1; $i >= 0; $i--) {
+                    $conteudoTd = $dom->getElementsByTagName('tr')->item($i)->textContent;
+                    $arrayTd = explode("\r\n",$conteudoTd);
+                    $arrayTd = array_map('removeCaractereArray', $arrayTd);
+    
+                    if($num_concurso != ""){
+                        if($arrayTd[0] == $num_concurso){
+                            return $arrayTd;
+                        }
+                    }else{
+                        if(is_numeric($arrayTd[0])){
+                            return $arrayTd;
+                        }
                     }
-                }else{
-                    return $arrayTd;
                 }
+    
+                $zip->close();
+                return ['error'=>'Concurso não encontrado.'];
+            }else{
+                $zip->close();
+                return ['error'=>'O Arquivo não pode ser descompactado.'];
             }
 
-            $zip->close();
-            return ['error'=>'Concurso não encontrado.'];
-        }else{
-            $zip->close();
-            return ['error'=>'O Arquivo não pode ser descompactado.'];
+        } catch (\Exception $e) {
+            return ['error'=>$e->getMessage()];
         }
 
     }
