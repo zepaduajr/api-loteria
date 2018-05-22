@@ -46,4 +46,14 @@ class MegaSenaController extends Controller
 
         return response()->json($this->megaSenaTransformer->transform($retorno));
     }
+
+    public function sincronizarMegaSena()
+    {
+        $retorno = $this->loteriaService->sincronizarMegaSena();
+        if(isset($retorno['error'])){
+            return response()->json($retorno);
+        }
+
+        return response()->json($retorno);
+    }
 }

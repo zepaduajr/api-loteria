@@ -72,6 +72,38 @@ class LoteriaService
 
     }
 
+    public function sincronizarMegaSena(){
+        $conteudo_arquivo = getFileUrl(env('URL_ZIP_MEGASENA'));
+
+        $resultado = $this->extrairResultado($conteudo_arquivo, env('NME_ARQUIVO_MEGASENA'), "", true);
+        if(isset($resultado['error'])){
+            return $resultado;
+        }
+
+        foreach ($resultado as $megasena){
+            if(is_numeric($megasena[0])){
+                $concurso = $megasena[0];
+                $concurso_bd = $this->megaSenaRepository->detalharPorNumConcurso($concurso);
+                if(empty($concurso_bd)){
+                    $dataMegaSena = [
+                        (int)$megasena[0],
+                        $megasena[1],
+                        (int)$megasena[2],
+                        (int)$megasena[3],
+                        (int)$megasena[4],
+                        (int)$megasena[5],
+                        (int)$megasena[6],
+                        (int)$megasena[7]
+                    ];
+                    $this->megaSenaRepository->inserir($dataMegaSena);
+                }
+            }
+        }
+
+        $concurso = $this->megaSenaRepository->listar();
+        return $concurso;
+    }
+
     public function obterResultadoLotoFacil($num_concurso = "")
     {
         $conteudo_arquivo = getFileUrl(env('URL_ZIP_LOTOFACIL'));
@@ -164,7 +196,7 @@ class LoteriaService
 
     }
 
-    protected function extrairResultado($conteudo_arquivo, $nme_arquivo, $num_concurso = "")
+    protected function extrairResultado($conteudo_arquivo, $nme_arquivo, $num_concurso = "", $retornarTodosResultados = false)
     {
         Log::info('numero -> '.$num_concurso);
         $num_concurso = (is_numeric($num_concurso)) ? $num_concurso : '';
@@ -182,7 +214,8 @@ class LoteriaService
                 $dom = new \DOMDocument();
                 @$dom->loadHtml($arquivo);
                 $totalLinhas = $dom->getElementsByTagName('tr')->length;
-    
+
+                $resultado = [];
                 for ($i=$totalLinhas-1; $i >= 0; $i--) {
                     $conteudoTd = $dom->getElementsByTagName('tr')->item($i)->textContent;
                     $arrayTd = explode("\r\n",$conteudoTd);
@@ -193,12 +226,19 @@ class LoteriaService
                             return $arrayTd;
                         }
                     }else{
-                        if(is_numeric($arrayTd[0])){
-                            return $arrayTd;
+                        if(!$retornarTodosResultados){
+                            if(is_numeric($arrayTd[0])){
+                                return $arrayTd;
+                            }
                         }
+                        array_push($resultado, $arrayTd);
                     }
                 }
-    
+
+                if(!empty($resultado)){
+                    return $resultado;
+                }
+
                 $zip->close();
                 return ['error'=>'Concurso não encontrado.'];
             }else{

@@ -16,6 +16,7 @@ $router->get('/', function () use ($router) {
 });
 
 $router->get('megasena', ['as' => 'megasena', 'uses' => 'MegaSenaController@ultimoConcurso']);
+$router->get('megasena/sincronizar', ['as' => 'megasena', 'uses' => 'MegaSenaController@sincronizarMegaSena']);
 $router->get('megasena/{num_concurdo}', ['as' => 'megasena', 'uses' => 'MegaSenaController@buscarConcurso']);
 
 $router->get('lotofacil', ['as' => 'megasena', 'uses' => 'LotoFacilController@ultimoConcurso']);

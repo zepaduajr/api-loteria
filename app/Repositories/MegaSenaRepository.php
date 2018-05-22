@@ -17,6 +17,12 @@ class MegaSenaRepository
     {
         DB::insert('insert into megasena (num_concurso, dat_sorteio, num_1, num_2, num_3, num_4, num_5, num_6) values (?, ?, ?, ?, ?, ?, ?, ?)', $data);
     }
+
+    public function listar()
+    {
+        $megasena = DB::select('select * from megasena order by num_concurso desc');
+        return $megasena;
+    }
 }
 
 
