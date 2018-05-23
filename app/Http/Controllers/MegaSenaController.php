@@ -56,4 +56,14 @@ class MegaSenaController extends Controller
 
         return response()->json($retorno);
     }
+
+    public function listarMegaSena()
+    {
+        $retorno = $this->loteriaService->listar("megasena");
+        if(isset($retorno['error'])){
+            return response()->json($retorno);
+        }
+
+        return response()->json($retorno);
+    }
 }

@@ -15,8 +15,11 @@ $router->get('/', function () use ($router) {
     return $router->app->version();
 });
 
+$router->get('resumo', ['as' => 'loteria.resumo', 'uses' => 'LoteriaController@resumo']);
+
 $router->get('megasena', ['as' => 'megasena', 'uses' => 'MegaSenaController@ultimoConcurso']);
 $router->get('megasena/sincronizar', ['as' => 'megasena', 'uses' => 'MegaSenaController@sincronizarMegaSena']);
+$router->get('megasena/all', ['as' => 'megasena', 'uses' => 'MegaSenaController@listarMegasena']);
 $router->get('megasena/{num_concurdo}', ['as' => 'megasena', 'uses' => 'MegaSenaController@buscarConcurso']);
 
 $router->get('lotofacil', ['as' => 'megasena', 'uses' => 'LotoFacilController@ultimoConcurso']);

@@ -251,4 +251,16 @@ class LoteriaService
         }
 
     }
+
+    public function listar($loteria)
+    {
+        switch ($loteria){
+            case "megasena":
+                return $this->megaSenaRepository->listar();
+                break;
+            default:
+                return ['error'=>'Dados de loteria não encontrado.'];
+
+        }
+    }
 }
