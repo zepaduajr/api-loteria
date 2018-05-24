@@ -30,13 +30,13 @@ class LoteriaController extends Controller
     public function resumo()
     {
         $resumo = [];
-        $retorno = $this->loteriaService->obterResultadoMegaSena();
+        $retorno = $this->loteriaService->obterUltimoResultadoSalvo('megasena');
         if(isset($retorno['error'])){
             return response()->json($retorno);
         }
         $resumo['megasena'] = $retorno;
 
-        $retorno = $this->loteriaService->obterResultadoLotoFacil();
+        $retorno = $this->loteriaService->obterUltimoResultadoSalvo('lotofacil');
         if(isset($retorno['error'])){
             return response()->json($retorno);
         }

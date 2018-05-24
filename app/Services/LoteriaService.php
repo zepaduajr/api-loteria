@@ -27,6 +27,21 @@ class LoteriaService
         $this->lotoFacilRepository = $lotoFacilRepository;
     }
 
+    public function obterUltimoResultadoSalvo($loteria){
+        $retorno = [];
+        switch ($loteria){
+            case "megasena":
+                $retorno = $this->megaSenaRepository->detalharUltimoConcurso();
+                break;
+            case "lotofacil":
+                $retorno = $this->lotoFacilRepository->detalharUltimoConcurso();
+                break;
+
+        }
+        return $retorno;
+
+    }
+
     public function obterResultadoMegaSena($num_concurso = "")
     {
         $conteudo_arquivo = getFileUrl(env('URL_ZIP_MEGASENA'));
@@ -52,7 +67,33 @@ class LoteriaService
             $concurso_bd = $this->megaSenaRepository->detalharPorNumConcurso($resultado[0]);
             if(empty($concurso_bd)){
                 if(is_numeric($resultado[0])){
-                    $dataMegaSena = [(int)$resultado[0],$resultado[1],(int)$resultado[2],(int)$resultado[3],(int)$resultado[4],(int)$resultado[5],(int)$resultado[6],(int)$resultado[7]];
+                    $vlr_rateio_sena = str_replace('.','',$resultado[11]);
+                    $vlr_rateio_sena = str_replace(',','.',$vlr_rateio_sena);
+                    $vlr_rateio_quina = str_replace('.','',$resultado[13]);
+                    $vlr_rateio_quina = str_replace(',','.',$vlr_rateio_quina);
+                    $vlr_rateio_quadra = str_replace('.','',$resultado[15]);
+                    $vlr_rateio_quadra = str_replace(',','.',$vlr_rateio_quadra);
+                    $vlr_premio_previsto = str_replace('.','',$resultado[18]);
+                    $vlr_premio_previsto = str_replace(',','.',$vlr_premio_previsto);
+                    $flg_acumulado = ($resultado[16] == "SIM") ? '1' : '0';
+                    $dataMegaSena = [
+                        (int)$resultado[0],
+                        $resultado[1],
+                        (int)$resultado[2],
+                        (int)$resultado[3],
+                        (int)$resultado[4],
+                        (int)$resultado[5],
+                        (int)$resultado[6],
+                        (int)$resultado[7],
+                        (int)$resultado[9],
+                        $vlr_rateio_sena,
+                        (int)$resultado[12],
+                        $vlr_rateio_quina,
+                        (int)$resultado[14],
+                        $vlr_rateio_quadra,
+                        $flg_acumulado,
+                        $vlr_premio_previsto
+                    ];
                     $this->megaSenaRepository->inserir($dataMegaSena);
                 }
             }
@@ -65,6 +106,14 @@ class LoteriaService
                 'num_4' => $resultado[5],
                 'num_5' => $resultado[6],
                 'num_6' => $resultado[7],
+                'num_ganhador_sena' => $resultado[9],
+                'vlr_rateio_sena' => $vlr_rateio_sena,
+                'num_ganhador_quina' => $resultado[12],
+                'vlr_rateio_quina' => $vlr_rateio_quina,
+                'num_ganhador_quadra' => $resultado[14],
+                'vlr_rateio_quadra' => $vlr_rateio_quadra,
+                'flg_acumulado' => $flg_acumulado,
+                'vlr_premio_previsto' => $vlr_premio_previsto,
             ];
         }
 
@@ -85,6 +134,15 @@ class LoteriaService
                 $concurso = $megasena[0];
                 $concurso_bd = $this->megaSenaRepository->detalharPorNumConcurso($concurso);
                 if(empty($concurso_bd)){
+                    $vlr_rateio_sena = str_replace('.','',$megasena[11]);
+                    $vlr_rateio_sena = str_replace(',','.',$vlr_rateio_sena);
+                    $vlr_rateio_quina = str_replace('.','',$megasena[13]);
+                    $vlr_rateio_quina = str_replace(',','.',$vlr_rateio_quina);
+                    $vlr_rateio_quadra = str_replace('.','',$megasena[15]);
+                    $vlr_rateio_quadra = str_replace(',','.',$vlr_rateio_quadra);
+                    $vlr_premio_previsto = str_replace('.','',$megasena[18]);
+                    $vlr_premio_previsto = str_replace(',','.',$vlr_premio_previsto);
+                    $flg_acumulado = ($megasena[16] == "SIM") ? '1' : '0';
                     $dataMegaSena = [
                         (int)$megasena[0],
                         $megasena[1],
@@ -93,7 +151,15 @@ class LoteriaService
                         (int)$megasena[4],
                         (int)$megasena[5],
                         (int)$megasena[6],
-                        (int)$megasena[7]
+                        (int)$megasena[7],
+                        (int)$megasena[9],
+                        $vlr_rateio_sena,
+                        (int)$megasena[12],
+                        $vlr_rateio_quina,
+                        (int)$megasena[14],
+                        $vlr_rateio_quadra,
+                        $flg_acumulado,
+                        $vlr_premio_previsto
                     ];
                     $this->megaSenaRepository->inserir($dataMegaSena);
                 }
